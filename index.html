@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Registro de Carga de Carritos</title>
+  <style>
+    body {
+      margin: 0;
+      background-color: black;
+      color: #00ff88;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      overflow: hidden;
+    }
+    video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    #result {
+      position: absolute;
+      top: 15px;
+      left: 15px;
+      background: rgba(0, 0, 0, 0.6);
+      padding: 10px 20px;
+      border-radius: 10px;
+      font-size: 20px;
+    }
+    #startBtn {
+      position: absolute;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #00ff88;
+      border: none;
+      padding: 15px 25px;
+      border-radius: 10px;
+      font-size: 18px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <video id="video" autoplay></video>
+  <div id="result">Esperando escaneo...</div>
+  <button id="startBtn">Iniciar cámara</button>
+
+  <script>
+    const video = document.getElementById('video');
+    const result = document.getElementById('result');
+    const button = document.getElementById('startBtn');
+
+    async function startScanner() {
+      if (!('BarcodeDetector' in window)) {
+        result.textContent = 'Tu navegador no soporta lectura de códigos de barra.';
+        return;
+      }
+
+      const formats = ['code_128', 'ean_13', 'ean_8', 'code_39', 'upc_a', 'upc_e'];
+      const barcodeDetector = new BarcodeDetector({ formats });
+      
+      const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+      video.srcObject = stream;
+      button.style.display = 'none';
+      result.textContent = 'Escaneando...';
+
+      async function detect() {
+        try {
+          const barcodes = await barcodeDetector.detect(video);
+          if (barcodes.len
